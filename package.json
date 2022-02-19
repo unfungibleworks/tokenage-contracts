@@ -1,0 +1,19 @@
+{
+  "name": "@tokenage/tokenage-contracts",
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@openzeppelin/contracts-upgradeable": "^4.5.1",
+    "hardhat": "^2.8.4",
+    "prettier": "^2.5.1",
+    "prettier-plugin-solidity": "^1.0.0-beta.19",
+    "solhint": "^3.3.7"
+  },
+  "scripts": {
+    "compile": "hardhat compile",
+    "lint:sol": "solhint contracts/**/*.sol && prettier -c contracts/**/*.sol",
+    "lint:sol:fix": "prettier --write contracts/**/*.sol"
+  }
+}
