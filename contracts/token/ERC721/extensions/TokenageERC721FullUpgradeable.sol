@@ -169,8 +169,8 @@ abstract contract TokenageERC721FullUpgradeable is
             abi.encodePacked("\x19\x01", eip712DomainHash, hashStruct)
         );
         address signer = hash.recover(signature);
-        require(hasRole(MINTER_ROLE, signer), "Signer is not a minter");
-        require(signer != address(0), "ECDSA: invalid signature");
+        require(hasRole(MINTER_ROLE, signer), "Bad sign");
+        require(signer != address(0), "Signer null");
 
         _safeMint(owner, tokenId);
         _setTokenURI(tokenId, metadataURI);
