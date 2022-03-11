@@ -35,7 +35,6 @@ abstract contract TokenageERC20FullUpgradeable is
     UUPSUpgradeable,
     ReentrancyGuardUpgradeable
 {
-    // ERC20PermitUpgradeable,
     event TokenMinted(address owner, uint256 amount);
 
     using CountersUpgradeable for CountersUpgradeable.Counter;
@@ -108,7 +107,7 @@ abstract contract TokenageERC20FullUpgradeable is
      * Requirements:
      *
      * - `owner` cannot be the zero address.
-     * - `amount` cannot be the zero address.
+     * - `amount` claimed amount to mint (wei)
      */
     function mint(address owner, uint256 amount)
         external
@@ -130,9 +129,7 @@ abstract contract TokenageERC20FullUpgradeable is
      * Requirements:
      *
      * - `owner` cannot be the zero address.
-     * - `tokenId` must be a unique number that was not minted yet.
-     * - `metadataURI` must be a valid URI with a proper JSON to represent this token.
-     * - `deadline` must be a timestamp in the future.
+     * - `amount` claimed amount to mint (wei)
      */
 
     function mintTokenWithSignature(
@@ -140,7 +137,6 @@ abstract contract TokenageERC20FullUpgradeable is
         uint256 amount,
         bytes memory signature
     ) public whenNotPaused nonReentrant {
-        console.log("mintTokenWithSignature START");
         uint256 chainId;
         assembly {
             chainId := chainid()
@@ -179,7 +175,6 @@ abstract contract TokenageERC20FullUpgradeable is
     }
 
     function nonces(address owner) public view returns (uint256) {
-        console.log("current NONCE: ", _nonces[owner].current());
         return _nonces[owner].current();
     }
 
