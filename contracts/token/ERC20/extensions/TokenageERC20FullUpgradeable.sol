@@ -7,18 +7,15 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
-
-import "./TokenageERC721PermitUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 
 /**
- * @dev Abstract contract of the ERC721 with some extensions to support signature base operations.
+ * @dev Abstract contract of the ERC20 with some extensions to support signature base operations.
  *
- * Extend this abstract contract if you are creating a specific tokenURI for each ERC721 token and want to
+ * Extend this abstract contract if you are creating a specific tokenURI for each ERC20 token and want to
  * use signature base minting and transferring in order to save gas.
  * Before minting there's the possibility of an address with {MINTER_ROLE} role to sign a transaction in order for
  * other user without {MINTER_ROLE} to mint his/her token, thus not obligating the address with minter role to mint
@@ -29,58 +26,54 @@ import "./TokenageERC721PermitUpgradeable.sol";
  * marketplace might require to escrow a token and transfer it afterwards to a buyer without a manual intervention
  * of the user in these operations.
  */
-abstract contract TokenageERC721FullUpgradeable is
+abstract contract TokenageERC20FullUpgradeable is
     Initializable,
-    ERC721Upgradeable,
-    ERC721EnumerableUpgradeable,
-    ERC721URIStorageUpgradeable,
+    ERC20Upgradeable,
     PausableUpgradeable,
     AccessControlUpgradeable,
-    ERC721BurnableUpgradeable,
+    ERC20BurnableUpgradeable,
     UUPSUpgradeable,
-    ReentrancyGuardUpgradeable,
-    TokenageERC721PermitUpgradeable
+    ReentrancyGuardUpgradeable
 {
-    event TokenMinted(address owner, string tokenURI, uint256 tokenId);
+    event TokenMinted(address owner, uint256 amount);
 
+    using CountersUpgradeable for CountersUpgradeable.Counter;
     using ECDSAUpgradeable for bytes32;
+
+    mapping(address => CountersUpgradeable.Counter) private _nonces;
 
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
 
+    bytes32 private constant _MINT_HASH =
+        keccak256("Mint(address >Owner,uint256 >Amount,uint256 >Nonce)");
+
+    bytes32 private constant _VERSION_HASH = keccak256(bytes("1"));
     bytes32 private constant _EIP712DOMAIN_HASH =
         keccak256(
             "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
         );
-    bytes32 private constant _VERSION_HASH = keccak256(bytes("1"));
-    bytes32 private constant _MINT_HASH =
-        keccak256(
-            "Mint(address >Owner,uint256 >Token ID,bytes32 >Token URI Hash)"
-        );
 
     /**
-     * @dev When extending this smart contract, call this {__TokenageERC721FullUpgradeable_init} method on {initialize}
+     * @dev When extending this smart contract, call this {__TokenageERC20FullUpgradeable_init} method on {initialize}
      * method.
      *
      * Example:
      * function initialize() public initializer {
-     *    __TokenageERC721FullUpgradeable_init('YourTokenName', 'YOURSYMBOL');
+     *    __TokenageERC20FullUpgradeable_init('YourTokenName', 'YOURSYMBOL');
      * }
      */
     // solhint-disable-next-line func-name-mixedcase
-    function __TokenageERC721FullUpgradeable_init(
+    function __TokenageERC20FullUpgradeable_init(
         string memory name,
         string memory symbol
     ) internal onlyInitializing {
-        __ERC721_init(name, symbol);
-        __ERC721Enumerable_init();
-        __ERC721URIStorage_init();
+        __ERC20_init(name, symbol);
         __Pausable_init();
         __AccessControl_init();
-        __ERC721Burnable_init();
+        __ERC20Burnable_init();
         __UUPSUpgradeable_init();
-        __TokenageERC721Permit_init(name);
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
@@ -114,18 +107,16 @@ abstract contract TokenageERC721FullUpgradeable is
      * Requirements:
      *
      * - `owner` cannot be the zero address.
-     * - `tokenId` must be a unique number that was not minted yet.
-     * - `metadataURI` must be a valid URI with a proper JSON to represent this token.
+     * - `amount` claimed amount to mint (wei)
      */
-    function mintToken(
-        address owner,
-        uint256 tokenId,
-        string memory metadataURI
-    ) external whenNotPaused nonReentrant {
+    function mint(address owner, uint256 amount)
+        external
+        whenNotPaused
+        nonReentrant
+    {
         require(hasRole(MINTER_ROLE, msg.sender), "User is not a minter");
-        _safeMint(owner, tokenId);
-        _setTokenURI(tokenId, metadataURI);
-        emit TokenMinted(owner, metadataURI, tokenId);
+        _mint(owner, amount);
+        emit TokenMinted(owner, amount);
     }
 
     /**
@@ -138,16 +129,14 @@ abstract contract TokenageERC721FullUpgradeable is
      * Requirements:
      *
      * - `owner` cannot be the zero address.
-     * - `tokenId` must be a unique number that was not minted yet.
-     * - `metadataURI` must be a valid URI with a proper JSON to represent this token.
-     * - `deadline` must be a timestamp in the future.
+     * - `amount` claimed amount to mint (wei)
      */
+
     function mintTokenWithSignature(
         address owner,
-        uint256 tokenId,
-        string memory metadataURI,
+        uint256 amount,
         bytes memory signature
-    ) external whenNotPaused nonReentrant {
+    ) public whenNotPaused nonReentrant {
         uint256 chainId;
         assembly {
             chainId := chainid()
@@ -161,33 +150,53 @@ abstract contract TokenageERC721FullUpgradeable is
                 address(this)
             )
         );
-        bytes32 tokenHash = keccak256(abi.encode(metadataURI));
         bytes32 hashStruct = keccak256(
-            abi.encode(_MINT_HASH, owner, tokenId, tokenHash)
+            abi.encode(_MINT_HASH, owner, amount, nonces(owner))
         );
         bytes32 hash = keccak256(
             abi.encodePacked("\x19\x01", eip712DomainHash, hashStruct)
         );
         address signer = hash.recover(signature);
+
         require(hasRole(MINTER_ROLE, signer), "Bad sign");
         require(signer != address(0), "Signer null");
 
-        _safeMint(owner, tokenId);
-        _setTokenURI(tokenId, metadataURI);
+        _mint(owner, amount);
 
-        emit TokenMinted(owner, metadataURI, tokenId);
+        emit TokenMinted(owner, amount);
     }
 
     function _beforeTokenTransfer(
         address from,
         address to,
-        uint256 tokenId
-    )
+        uint256 amount
+    ) internal override whenNotPaused {
+        super._beforeTokenTransfer(from, to, amount);
+    }
+
+    function nonces(address owner) public view returns (uint256) {
+        return _nonces[owner].current();
+    }
+
+    function _contractNameHash() internal pure virtual returns (bytes32);
+
+    // The following functions are overrides required by Solidity.
+
+    function _burn(address owner, uint256 amount)
         internal
-        override(ERC721Upgradeable, ERC721EnumerableUpgradeable)
+        override(ERC20Upgradeable)
         whenNotPaused
     {
-        super._beforeTokenTransfer(from, to, tokenId);
+        super._burn(owner, amount);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(AccessControlUpgradeable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
     }
 
     function _authorizeUpgrade(address newImplementation)
@@ -196,39 +205,6 @@ abstract contract TokenageERC721FullUpgradeable is
         onlyRole(UPGRADER_ROLE)
     {}
 
-    function _contractNameHash() internal pure virtual returns (bytes32);
-
-    // The following functions are overrides required by Solidity.
-
-    function _burn(uint256 tokenId)
-        internal
-        override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
-        whenNotPaused
-    {
-        super._burn(tokenId);
-    }
-
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
-        returns (string memory)
-    {
-        return super.tokenURI(tokenId);
-    }
-
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(
-            ERC721Upgradeable,
-            ERC721EnumerableUpgradeable,
-            AccessControlUpgradeable
-        )
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
-    }
 
     /**
      * @dev This empty reserved space is put in place to allow future versions to add new
