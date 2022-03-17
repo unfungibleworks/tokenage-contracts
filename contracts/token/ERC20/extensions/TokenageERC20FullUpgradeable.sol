@@ -133,16 +133,12 @@ abstract contract TokenageERC20FullUpgradeable is
         uint256 amount,
         bytes memory signature
     ) public whenNotPaused nonReentrant {
-        uint256 chainId;
-        assembly {
-            chainId := chainid()
-        }
         bytes32 eip712DomainHash = keccak256(
             abi.encode(
                 _EIP712DOMAIN_HASH,
                 _contractNameHash(),
                 _VERSION_HASH,
-                chainId,
+                block.chainid,
                 address(this)
             )
         );

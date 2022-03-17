@@ -118,7 +118,7 @@ abstract contract TokenageERC721FullUpgradeable is
         uint256 tokenId,
         string memory metadataURI
     ) external whenNotPaused nonReentrant {
-        require(hasRole(MINTER_ROLE, msg.sender), "User is not a minter");
+        require(hasRole(MINTER_ROLE, msg.sender), "Not minter");
         _safeMint(owner, tokenId);
         _setTokenURI(tokenId, metadataURI);
         emit TokenMinted(owner, metadataURI, tokenId);
@@ -144,16 +144,12 @@ abstract contract TokenageERC721FullUpgradeable is
         string memory metadataURI,
         bytes memory signature
     ) external whenNotPaused nonReentrant {
-        uint256 chainId;
-        assembly {
-            chainId := chainid()
-        }
         bytes32 eip712DomainHash = keccak256(
             abi.encode(
                 _EIP712DOMAIN_HASH,
                 _contractNameHash(),
                 _VERSION_HASH,
-                chainId,
+                block.chainId,
                 address(this)
             )
         );
