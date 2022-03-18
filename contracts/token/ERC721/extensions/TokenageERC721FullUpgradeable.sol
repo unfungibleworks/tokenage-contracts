@@ -3,11 +3,9 @@ pragma solidity >=0.8.0 <0.9.0;
 
 import "hardhat/console.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
@@ -30,8 +28,6 @@ import "./TokenageERC721PermitUpgradeable.sol";
  * of the user in these operations.
  */
 abstract contract TokenageERC721FullUpgradeable is
-    Initializable,
-    ERC721Upgradeable,
     ERC721EnumerableUpgradeable,
     ERC721URIStorageUpgradeable,
     PausableUpgradeable,
@@ -178,6 +174,10 @@ abstract contract TokenageERC721FullUpgradeable is
         emit TokenMinted(owner, metadataURI, tokenId);
     }
 
+    function _contractNameHash() internal pure virtual returns (bytes32);
+
+    // The following functions are overrides required by Solidity.
+    
     function _beforeTokenTransfer(
         address from,
         address to,
@@ -195,10 +195,6 @@ abstract contract TokenageERC721FullUpgradeable is
         override
         onlyRole(UPGRADER_ROLE)
     {}
-
-    function _contractNameHash() internal pure virtual returns (bytes32);
-
-    // The following functions are overrides required by Solidity.
 
     function _burn(uint256 tokenId)
         internal
