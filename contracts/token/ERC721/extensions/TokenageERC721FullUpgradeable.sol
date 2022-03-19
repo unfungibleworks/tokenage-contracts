@@ -144,12 +144,16 @@ abstract contract TokenageERC721FullUpgradeable is
         string memory metadataURI,
         bytes memory signature
     ) external whenNotPaused nonReentrant {
+        uint256 chainId;
+        assembly {
+            chainId := chainid()
+        }
         bytes32 eip712DomainHash = keccak256(
             abi.encode(
                 _EIP712DOMAIN_HASH,
                 _contractNameHash(),
                 _VERSION_HASH,
-                block.chainId,
+                chainId,
                 address(this)
             )
         );
