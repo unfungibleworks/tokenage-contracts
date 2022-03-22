@@ -54,6 +54,7 @@ abstract contract TokenageERC721FullUpgradeable is
         keccak256(
             "Mint(address >Owner,uint256 >Token ID,bytes32 >Token URI Hash)"
         );
+    bytes32 private eip712DomainHash;
 
     /**
      * @dev When extending this smart contract, call this {__TokenageERC721FullUpgradeable_init} method on {initialize}
@@ -77,6 +78,20 @@ abstract contract TokenageERC721FullUpgradeable is
         __ERC721Burnable_init();
         __UUPSUpgradeable_init();
         __TokenageERC721Permit_init(name);
+
+        uint256 chainId;
+        assembly {
+            chainId := chainid()
+        }
+        eip712DomainHash = keccak256(
+            abi.encode(
+                _EIP712DOMAIN_HASH,
+                _contractNameHash(),
+                _VERSION_HASH,
+                chainId,
+                address(this)
+            )
+        );
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
@@ -144,19 +159,6 @@ abstract contract TokenageERC721FullUpgradeable is
         string memory metadataURI,
         bytes memory signature
     ) external whenNotPaused nonReentrant {
-        uint256 chainId;
-        assembly {
-            chainId := chainid()
-        }
-        bytes32 eip712DomainHash = keccak256(
-            abi.encode(
-                _EIP712DOMAIN_HASH,
-                _contractNameHash(),
-                _VERSION_HASH,
-                chainId,
-                address(this)
-            )
-        );
         bytes32 tokenHash = keccak256(abi.encode(metadataURI));
         bytes32 hashStruct = keccak256(
             abi.encode(_MINT_HASH, owner, tokenId, tokenHash)
@@ -177,7 +179,7 @@ abstract contract TokenageERC721FullUpgradeable is
     function _contractNameHash() internal pure virtual returns (bytes32);
 
     // The following functions are overrides required by Solidity.
-    
+
     function _beforeTokenTransfer(
         address from,
         address to,
