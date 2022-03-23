@@ -22,11 +22,12 @@ abstract contract TokenageWhitelist is
     bytes32 public constant UPDATER_ROLE = keccak256("UPDATER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
 
-    mapping(address => bool) private whitelistMapping;
+    mapping(address => bool) private _whitelistMapping;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {}
 
+    // solhint-disable-next-line func-name-mixedcase, private-vars-leading-underscore
     function __TokenageWhitelist_init() public onlyInitializing {
         __AccessControl_init();
         __UUPSUpgradeable_init();
@@ -69,7 +70,7 @@ abstract contract TokenageWhitelist is
         require(addresses.length > 0, "Addresses empty");
         for (uint256 i = 0; i < addresses.length; i++) {
             address addr = addresses[i];
-            whitelistMapping[addr] = true;
+            _whitelistMapping[addr] = true;
         }
         emit AccountsAdded(addresses.length);
     }
@@ -88,7 +89,7 @@ abstract contract TokenageWhitelist is
         require(addresses.length > 0, "Addresses empty");
         for (uint256 i = 0; i < addresses.length; i++) {
             address addr = addresses[i];
-            delete whitelistMapping[addr];
+            delete _whitelistMapping[addr];
         }
         emit AccountsRemoved(addresses.length);
     }
@@ -99,7 +100,7 @@ abstract contract TokenageWhitelist is
         override
         returns (bool)
     {
-        return whitelistMapping[addressToCheck] == true;
+        return _whitelistMapping[addressToCheck] == true;
     }
 
     function _authorizeUpgrade(address newImplementation)

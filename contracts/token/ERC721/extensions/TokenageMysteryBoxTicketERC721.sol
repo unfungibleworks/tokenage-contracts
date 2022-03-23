@@ -18,7 +18,11 @@ abstract contract TokenageMysteryBoxTicketERC721 is
     AccessControlUpgradeable,
     UUPSUpgradeable
 {
-    event MysteryBoxTicketMinted(address owner, uint256 tokenId);
+    event MysteryBoxTicketMinted(
+        address indexed owner,
+        uint256 tokenId,
+        uint8 ticketType
+    );
 
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
@@ -27,6 +31,7 @@ abstract contract TokenageMysteryBoxTicketERC721 is
 
     mapping(uint256 => uint8) public tokenIdToTicketType;
 
+    // solhint-disable-next-line func-name-mixedcase, private-vars-leading-underscore
     function __MysteryBoxTicketERC721_init(
         string memory name,
         string memory symbol
@@ -61,7 +66,7 @@ abstract contract TokenageMysteryBoxTicketERC721 is
         _validateTokenMint(to, tokenId, boxType, ticketType);
         _safeMint(to, tokenId);
         tokenIdToTicketType[tokenId] = ticketType;
-        emit MysteryBoxTicketMinted(to, tokenId);
+        emit MysteryBoxTicketMinted(to, tokenId, ticketType);
     }
 
     function burn(uint256 tokenId) external override onlyRole(BURNER_ROLE) {
@@ -79,9 +84,9 @@ abstract contract TokenageMysteryBoxTicketERC721 is
     }
 
     function isOwnerOfTokens(address owner, uint256[] calldata tokenIds)
-    external
-    view
-    returns (bool)
+        external
+        view
+        returns (bool)
     {
         for (uint256 i = 0; i < tokenIds.length; i++) {
             if (ownerOf(tokenIds[i]) != owner) {

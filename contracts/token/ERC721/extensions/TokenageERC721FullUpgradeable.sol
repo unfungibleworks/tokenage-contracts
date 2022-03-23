@@ -54,7 +54,7 @@ abstract contract TokenageERC721FullUpgradeable is
         keccak256(
             "Mint(address >Owner,uint256 >Token ID,bytes32 >Token URI Hash)"
         );
-    bytes32 private eip712DomainHash;
+    bytes32 private _eip712DomainHash;
 
     /**
      * @dev When extending this smart contract, call this {__TokenageERC721FullUpgradeable_init} method on {initialize}
@@ -83,7 +83,7 @@ abstract contract TokenageERC721FullUpgradeable is
         assembly {
             chainId := chainid()
         }
-        eip712DomainHash = keccak256(
+        _eip712DomainHash = keccak256(
             abi.encode(
                 _EIP712DOMAIN_HASH,
                 _contractNameHash(),
@@ -164,7 +164,7 @@ abstract contract TokenageERC721FullUpgradeable is
             abi.encode(_MINT_HASH, owner, tokenId, tokenHash)
         );
         bytes32 hash = keccak256(
-            abi.encodePacked("\x19\x01", eip712DomainHash, hashStruct)
+            abi.encodePacked("\x19\x01", _eip712DomainHash, hashStruct)
         );
         address signer = hash.recover(signature);
         require(hasRole(MINTER_ROLE, signer), "Bad sign");

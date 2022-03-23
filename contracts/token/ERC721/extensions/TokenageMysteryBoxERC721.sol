@@ -19,7 +19,7 @@ abstract contract TokenageMysteryBoxERC721 is
 {
     using CountersUpgradeable for CountersUpgradeable.Counter;
 
-    event MysteryBoxTokenMinted(address owner, uint256 tokenId);
+    event MysteryBoxTokenMinted(address indexed owner, uint256 tokenId);
 
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
@@ -29,6 +29,7 @@ abstract contract TokenageMysteryBoxERC721 is
     CountersUpgradeable.Counter private _tokenIdCounter;
     mapping(uint256 => uint8) public tokenIdToType;
 
+    // solhint-disable-next-line func-name-mixedcase, private-vars-leading-underscore
     function __MysteryBoxERC721_init(string memory name, string memory symbol)
         public
         onlyInitializing
@@ -84,9 +85,9 @@ abstract contract TokenageMysteryBoxERC721 is
     }
 
     function isOwnerOfTokens(address owner, uint256[] calldata tokenIds)
-    external
-    view
-    returns (bool)
+        external
+        view
+        returns (bool)
     {
         for (uint256 i = 0; i < tokenIds.length; i++) {
             if (ownerOf(tokenIds[i]) != owner) {

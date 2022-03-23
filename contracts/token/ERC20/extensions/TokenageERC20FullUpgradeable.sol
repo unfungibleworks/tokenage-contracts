@@ -48,7 +48,7 @@ abstract contract TokenageERC20FullUpgradeable is
         keccak256(
             "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
         );
-    bytes32 private eip712DomainHash;
+    bytes32 private _eip712DomainHash;
 
     mapping(address => CountersUpgradeable.Counter) private _nonces;
 
@@ -72,7 +72,7 @@ abstract contract TokenageERC20FullUpgradeable is
         __ERC20Burnable_init();
         __UUPSUpgradeable_init();
 
-        eip712DomainHash = keccak256(
+        _eip712DomainHash = keccak256(
             abi.encode(
                 _EIP712DOMAIN_HASH,
                 _contractNameHash(),
@@ -148,7 +148,7 @@ abstract contract TokenageERC20FullUpgradeable is
             abi.encode(_MINT_HASH, owner, amount, _useNonce(owner))
         );
         bytes32 hash = keccak256(
-            abi.encodePacked("\x19\x01", eip712DomainHash, hashStruct)
+            abi.encodePacked("\x19\x01", _eip712DomainHash, hashStruct)
         );
         address signer = hash.recover(signature);
 
