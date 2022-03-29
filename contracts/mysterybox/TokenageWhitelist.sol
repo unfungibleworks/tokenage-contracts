@@ -44,7 +44,7 @@ abstract contract TokenageWhitelist is
      * @dev Disallow contract operations from users.
      * Use this to prevent users from adding and removing accounts from whitelist mapping.
      */
-    function pause() public onlyRole(PAUSER_ROLE) {
+    function pause() external onlyRole(PAUSER_ROLE) {
         _pause();
     }
 
@@ -52,7 +52,7 @@ abstract contract TokenageWhitelist is
      * @dev Allow contract operations from users.
      * See {pause} method.
      */
-    function unpause() public onlyRole(PAUSER_ROLE) {
+    function unpause() external onlyRole(PAUSER_ROLE) {
         _unpause();
     }
 

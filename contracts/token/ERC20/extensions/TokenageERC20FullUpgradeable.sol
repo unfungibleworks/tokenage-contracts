@@ -72,12 +72,16 @@ abstract contract TokenageERC20FullUpgradeable is
         __ERC20Burnable_init();
         __UUPSUpgradeable_init();
 
+        uint256 chainId;
+        assembly {
+            chainId := chainid()
+        }
         _eip712DomainHash = keccak256(
             abi.encode(
                 _EIP712DOMAIN_HASH,
                 _contractNameHash(),
                 _VERSION_HASH,
-                block.chainid,
+                chainId,
                 address(this)
             )
         );
@@ -92,7 +96,7 @@ abstract contract TokenageERC20FullUpgradeable is
      * @dev Disallow contract operations from users.
      * Use this to prevent users from minting, transferring etc.
      */
-    function pause() public onlyRole(PAUSER_ROLE) {
+    function pause() external onlyRole(PAUSER_ROLE) {
         _pause();
     }
 
@@ -100,7 +104,7 @@ abstract contract TokenageERC20FullUpgradeable is
      * @dev Allow contract operations from users.
      * See {pause} method.
      */
-    function unpause() public onlyRole(PAUSER_ROLE) {
+    function unpause() external onlyRole(PAUSER_ROLE) {
         _unpause();
     }
 
