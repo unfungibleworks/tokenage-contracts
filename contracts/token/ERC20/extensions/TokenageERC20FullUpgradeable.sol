@@ -31,12 +31,10 @@ abstract contract TokenageERC20FullUpgradeable is
     UUPSUpgradeable,
     ReentrancyGuardUpgradeable
 {
-    event TokenMinted(address owner, uint256 amount);
-
     using CountersUpgradeable for CountersUpgradeable.Counter;
     using ECDSAUpgradeable for bytes32;
 
-    mapping(address => CountersUpgradeable.Counter) private _nonces;
+    event TokenMinted(address owner, uint256 amount);
 
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
@@ -50,6 +48,9 @@ abstract contract TokenageERC20FullUpgradeable is
         keccak256(
             "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
         );
+    bytes32 private _eip712DomainHash;
+
+    mapping(address => CountersUpgradeable.Counter) private _nonces;
 
     /**
      * @dev When extending this smart contract, call this {__TokenageERC20FullUpgradeable_init} method on {initialize}
@@ -70,6 +71,16 @@ abstract contract TokenageERC20FullUpgradeable is
         __AccessControl_init();
         __ERC20Burnable_init();
         __UUPSUpgradeable_init();
+
+        _eip712DomainHash = keccak256(
+            abi.encode(
+                _EIP712DOMAIN_HASH,
+                _contractNameHash(),
+                _VERSION_HASH,
+                block.chainid,
+                address(this)
+            )
+        );
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
@@ -133,24 +144,11 @@ abstract contract TokenageERC20FullUpgradeable is
         uint256 amount,
         bytes memory signature
     ) public whenNotPaused nonReentrant {
-        uint256 chainId;
-        assembly {
-            chainId := chainid()
-        }
-        bytes32 eip712DomainHash = keccak256(
-            abi.encode(
-                _EIP712DOMAIN_HASH,
-                _contractNameHash(),
-                _VERSION_HASH,
-                chainId,
-                address(this)
-            )
-        );
         bytes32 hashStruct = keccak256(
-            abi.encode(_MINT_HASH, owner, amount, nonces(owner))
+            abi.encode(_MINT_HASH, owner, amount, _useNonce(owner))
         );
         bytes32 hash = keccak256(
-            abi.encodePacked("\x19\x01", eip712DomainHash, hashStruct)
+            abi.encodePacked("\x19\x01", _eip712DomainHash, hashStruct)
         );
         address signer = hash.recover(signature);
 
@@ -172,6 +170,13 @@ abstract contract TokenageERC20FullUpgradeable is
 
     function nonces(address owner) public view returns (uint256) {
         return _nonces[owner].current();
+    }
+
+    function _useNonce(address owner) internal returns (uint256) {
+        CountersUpgradeable.Counter storage nonceCounter = _nonces[owner];
+        uint256 nonce = nonceCounter.current();
+        nonceCounter.increment();
+        return nonce;
     }
 
     function _contractNameHash() internal pure virtual returns (bytes32);
