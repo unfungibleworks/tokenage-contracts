@@ -19,8 +19,6 @@ abstract contract TokenageMysteryBoxERC721 is
 {
     using CountersUpgradeable for CountersUpgradeable.Counter;
 
-    event MysteryBoxTokenMinted(address indexed owner, uint256 tokenId);
-
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");

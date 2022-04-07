@@ -18,12 +18,6 @@ abstract contract TokenageMysteryBoxRevealableERC721 is
     AccessControlUpgradeable,
     UUPSUpgradeable
 {
-    event MysteryBoxRevealableTokenMinted(
-        address indexed owner,
-        uint256 tokenId,
-        uint16 ticketType
-    );
-
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");

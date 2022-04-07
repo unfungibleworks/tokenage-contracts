@@ -24,9 +24,6 @@ abstract contract TokenageWhitelist is
 
     mapping(address => bool) private _whitelistMapping;
 
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() initializer {}
-
     // solhint-disable-next-line func-name-mixedcase, private-vars-leading-underscore
     function __TokenageWhitelist_init() public onlyInitializing {
         __AccessControl_init();

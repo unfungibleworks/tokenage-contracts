@@ -37,9 +37,9 @@ abstract contract TokenageERC721FullUpgradeable is
     ReentrancyGuardUpgradeable,
     TokenageERC721PermitUpgradeable
 {
-    event TokenMinted(address owner, string tokenURI, uint256 tokenId);
-
     using ECDSAUpgradeable for bytes32;
+
+    event TokenMinted(address owner, string tokenURI, uint256 tokenId);
 
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");

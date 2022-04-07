@@ -6,6 +6,12 @@ import "./ITokenageMysteryBoxBurnableERC721.sol";
 interface ITokenageMysteryBoxRevealableERC721 is
     ITokenageMysteryBoxBurnableERC721
 {
+    event MysteryBoxRevealableTokenMinted(
+        address indexed owner,
+        uint256 tokenId,
+        uint16 ticketType
+    );
+
     function mintTo(
         address to,
         uint256 tokenId,
