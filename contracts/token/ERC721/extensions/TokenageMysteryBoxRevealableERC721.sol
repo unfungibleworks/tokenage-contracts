@@ -9,27 +9,21 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 
-import "./ITokenageMysteryBoxTicketERC721.sol";
+import "./ITokenageMysteryBoxRevealableERC721.sol";
 
-abstract contract TokenageMysteryBoxTicketERC721 is
-    ITokenageMysteryBoxTicketERC721,
+abstract contract TokenageMysteryBoxRevealableERC721 is
+    ITokenageMysteryBoxRevealableERC721,
     ERC721Upgradeable,
     PausableUpgradeable,
     AccessControlUpgradeable,
     UUPSUpgradeable
 {
-    event MysteryBoxTicketMinted(
-        address indexed owner,
-        uint256 tokenId,
-        uint8 ticketType
-    );
-
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
 
-    mapping(uint256 => uint8) public tokenIdToTicketType;
+    mapping(uint256 => uint16) public tokenIdToTicketType;
 
     // solhint-disable-next-line func-name-mixedcase, private-vars-leading-underscore
     function __MysteryBoxTicketERC721_init(
@@ -46,39 +40,33 @@ abstract contract TokenageMysteryBoxTicketERC721 is
         _grantRole(UPGRADER_ROLE, msg.sender);
     }
 
-    function pause() public onlyRole(PAUSER_ROLE) {
+    function pause() external onlyRole(PAUSER_ROLE) {
         _pause();
     }
 
-    function unpause() public onlyRole(PAUSER_ROLE) {
+    function unpause() external onlyRole(PAUSER_ROLE) {
         _unpause();
     }
 
     function mintTo(
         address to,
         uint256 tokenId,
-        uint8 boxType,
-        uint8 ticketType
+        uint16 boxType,
+        uint16 ticketType
     ) external override whenNotPaused onlyRole(MINTER_ROLE) {
         require(to != address(0x0), "Address null");
         require(boxType > 0, "Invalid ticket");
         require(ticketType > 0, "Invalid ticket");
         _validateTokenMint(to, tokenId, boxType, ticketType);
-        _safeMint(to, tokenId);
-        tokenIdToTicketType[tokenId] = ticketType;
-        emit MysteryBoxTicketMinted(to, tokenId, ticketType);
+        _mintToken(to, tokenId, boxType, ticketType);
+        emit MysteryBoxRevealableTokenMinted(to, tokenId, ticketType);
     }
 
     function burn(uint256 tokenId) external override onlyRole(BURNER_ROLE) {
         _burn(tokenId);
     }
 
-    function getTicketType(uint256 tokenId)
-        external
-        view
-        override
-        returns (uint8)
-    {
+    function getType(uint256 tokenId) external view override returns (uint16) {
         require(_exists(tokenId), "Token not exists");
         return tokenIdToTicketType[tokenId];
     }
@@ -99,9 +87,19 @@ abstract contract TokenageMysteryBoxTicketERC721 is
     function _validateTokenMint(
         address to,
         uint256 tokenId,
-        uint8 boxType,
-        uint8 ticketType
+        uint16 boxType,
+        uint16 ticketType
     ) internal virtual {}
+
+    function _mintToken(
+        address to,
+        uint256 tokenId,
+        uint16 boxType,
+        uint16 ticketType
+    ) internal virtual {
+        _safeMint(to, tokenId);
+        tokenIdToTicketType[tokenId] = ticketType;
+    }
 
     function _beforeTokenTransfer(
         address from,

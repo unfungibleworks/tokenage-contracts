@@ -19,15 +19,13 @@ abstract contract TokenageMysteryBoxERC721 is
 {
     using CountersUpgradeable for CountersUpgradeable.Counter;
 
-    event MysteryBoxTokenMinted(address indexed owner, uint256 tokenId);
-
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
 
     CountersUpgradeable.Counter private _tokenIdCounter;
-    mapping(uint256 => uint8) public tokenIdToType;
+    mapping(uint256 => uint16) public tokenIdToType;
 
     // solhint-disable-next-line func-name-mixedcase, private-vars-leading-underscore
     function __MysteryBoxERC721_init(string memory name, string memory symbol)
@@ -44,18 +42,18 @@ abstract contract TokenageMysteryBoxERC721 is
         _grantRole(UPGRADER_ROLE, msg.sender);
     }
 
-    function pause() public onlyRole(PAUSER_ROLE) {
+    function pause() external onlyRole(PAUSER_ROLE) {
         _pause();
     }
 
-    function unpause() public onlyRole(PAUSER_ROLE) {
+    function unpause() external onlyRole(PAUSER_ROLE) {
         _unpause();
     }
 
     function mintTo(
         address to,
-        uint8 boxType,
-        uint32 quantity
+        uint16 boxType,
+        uint64 quantity
     ) external override onlyRole(MINTER_ROLE) {
         require(to != address(0x0), "Address null");
         require(boxType > 0, "Invalid box type");
@@ -74,12 +72,7 @@ abstract contract TokenageMysteryBoxERC721 is
         _burn(tokenId);
     }
 
-    function getBoxType(uint256 tokenId)
-        external
-        view
-        override
-        returns (uint8)
-    {
+    function getType(uint256 tokenId) external view override returns (uint16) {
         require(_exists(tokenId), "Token not exists");
         return tokenIdToType[tokenId];
     }
@@ -99,8 +92,8 @@ abstract contract TokenageMysteryBoxERC721 is
 
     function _validateTokenMint(
         address to,
-        uint8 boxType,
-        uint32 quantity
+        uint16 boxType,
+        uint64 quantity
     ) internal virtual {}
 
     function _beforeTokenTransfer(

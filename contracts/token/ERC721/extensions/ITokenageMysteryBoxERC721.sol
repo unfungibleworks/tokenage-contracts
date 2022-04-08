@@ -1,16 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0 <0.9.0;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol";
+import "./ITokenageMysteryBoxBurnableERC721.sol";
 
-interface ITokenageMysteryBoxERC721 is IERC721Upgradeable {
+interface ITokenageMysteryBoxERC721 is ITokenageMysteryBoxBurnableERC721 {
+    event MysteryBoxTokenMinted(address indexed owner, uint256 tokenId);
+
     function mintTo(
         address to,
-        uint8 boxType,
-        uint32 quantity
+        uint16 boxType,
+        uint64 quantity
     ) external;
-
-    function burn(uint256 tokenId) external;
-
-    function getBoxType(uint256 tokenId) external view returns (uint8);
 }

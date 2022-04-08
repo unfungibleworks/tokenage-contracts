@@ -24,9 +24,6 @@ abstract contract TokenageWhitelist is
 
     mapping(address => bool) private _whitelistMapping;
 
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() initializer {}
-
     // solhint-disable-next-line func-name-mixedcase, private-vars-leading-underscore
     function __TokenageWhitelist_init() public onlyInitializing {
         __AccessControl_init();
@@ -44,7 +41,7 @@ abstract contract TokenageWhitelist is
      * @dev Disallow contract operations from users.
      * Use this to prevent users from adding and removing accounts from whitelist mapping.
      */
-    function pause() public onlyRole(PAUSER_ROLE) {
+    function pause() external onlyRole(PAUSER_ROLE) {
         _pause();
     }
 
@@ -52,7 +49,7 @@ abstract contract TokenageWhitelist is
      * @dev Allow contract operations from users.
      * See {pause} method.
      */
-    function unpause() public onlyRole(PAUSER_ROLE) {
+    function unpause() external onlyRole(PAUSER_ROLE) {
         _unpause();
     }
 

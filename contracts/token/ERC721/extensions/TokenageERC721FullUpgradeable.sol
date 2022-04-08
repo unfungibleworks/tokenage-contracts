@@ -37,9 +37,9 @@ abstract contract TokenageERC721FullUpgradeable is
     ReentrancyGuardUpgradeable,
     TokenageERC721PermitUpgradeable
 {
-    event TokenMinted(address owner, string tokenURI, uint256 tokenId);
-
     using ECDSAUpgradeable for bytes32;
+
+    event TokenMinted(address owner, string tokenURI, uint256 tokenId);
 
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
@@ -103,7 +103,7 @@ abstract contract TokenageERC721FullUpgradeable is
      * @dev Disallow contract operations from users.
      * Use this to prevent users from minting, transferring etc.
      */
-    function pause() public onlyRole(PAUSER_ROLE) {
+    function pause() external onlyRole(PAUSER_ROLE) {
         _pause();
     }
 
@@ -111,7 +111,7 @@ abstract contract TokenageERC721FullUpgradeable is
      * @dev Allow contract operations from users.
      * See {pause} method.
      */
-    function unpause() public onlyRole(PAUSER_ROLE) {
+    function unpause() external onlyRole(PAUSER_ROLE) {
         _unpause();
     }
 
@@ -132,7 +132,7 @@ abstract contract TokenageERC721FullUpgradeable is
         address owner,
         uint256 tokenId,
         string memory metadataURI
-    ) external whenNotPaused nonReentrant {
+    ) external virtual whenNotPaused nonReentrant {
         require(hasRole(MINTER_ROLE, msg.sender), "Not minter");
         _safeMint(owner, tokenId);
         _setTokenURI(tokenId, metadataURI);
@@ -158,7 +158,7 @@ abstract contract TokenageERC721FullUpgradeable is
         uint256 tokenId,
         string memory metadataURI,
         bytes memory signature
-    ) external whenNotPaused nonReentrant {
+    ) external virtual whenNotPaused nonReentrant {
         bytes32 tokenHash = keccak256(abi.encode(metadataURI));
         bytes32 hashStruct = keccak256(
             abi.encode(_MINT_HASH, owner, tokenId, tokenHash)
@@ -172,7 +172,6 @@ abstract contract TokenageERC721FullUpgradeable is
 
         _safeMint(owner, tokenId);
         _setTokenURI(tokenId, metadataURI);
-
         emit TokenMinted(owner, metadataURI, tokenId);
     }
 
