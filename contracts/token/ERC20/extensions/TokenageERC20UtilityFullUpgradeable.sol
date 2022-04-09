@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0 <0.9.0;
 
-import "./TokenageERC20FullUpgradeable.sol";
+import '@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol';
+
+import './TokenageERC20FullUpgradeable.sol';
 
 /**
  * @dev Abstract contract of the ERC20 with some extensions to support signature base operations.
@@ -17,22 +20,17 @@ import "./TokenageERC20FullUpgradeable.sol";
  * marketplace might require to escrow a token and transfer it afterwards to a buyer without a manual intervention
  * of the user in these operations.
  */
-abstract contract TokenageERC20UtilityFullUpgradeable is
-    TokenageERC20FullUpgradeable
-{
+abstract contract TokenageERC20UtilityFullUpgradeable is TokenageERC20FullUpgradeable {
     using CountersUpgradeable for CountersUpgradeable.Counter;
     using ECDSAUpgradeable for bytes32;
 
-    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant MINTER_ROLE = keccak256('MINTER_ROLE');
 
-    bytes32 private constant _MINT_HASH =
-        keccak256("Mint(address >Owner,uint256 >Amount,uint256 >Nonce)");
+    bytes32 private constant _MINT_HASH = keccak256('Mint(address >Owner,uint256 >Amount,uint256 >Nonce)');
 
-    bytes32 private constant _VERSION_HASH = keccak256(bytes("1"));
+    bytes32 private constant _VERSION_HASH = keccak256(bytes('1'));
     bytes32 private constant _EIP712DOMAIN_HASH =
-        keccak256(
-            "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-        );
+        keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)');
     bytes32 private _eip712DomainHash;
 
     mapping(address => CountersUpgradeable.Counter) private _nonces;
@@ -47,24 +45,15 @@ abstract contract TokenageERC20UtilityFullUpgradeable is
      * }
      */
     // solhint-disable-next-line func-name-mixedcase
-    function __TokenageERC20UtilityFullUpgradeable_init(
-        string memory name,
-        string memory symbol
-    ) internal onlyInitializing {
-        __TokenageERC20FullUpgradeable_init(name, symbol);
+    function __TokenageERC20UtilityFull_init(string memory name, string memory symbol) internal onlyInitializing {
+        __TokenageERC20Full_init(name, symbol);
 
         uint256 chainId;
         assembly {
             chainId := chainid()
         }
         _eip712DomainHash = keccak256(
-            abi.encode(
-                _EIP712DOMAIN_HASH,
-                _contractNameHash(),
-                _VERSION_HASH,
-                chainId,
-                address(this)
-            )
+            abi.encode(_EIP712DOMAIN_HASH, _contractNameHash(), _VERSION_HASH, chainId, address(this))
         );
 
         _grantRole(MINTER_ROLE, msg.sender);
@@ -82,12 +71,8 @@ abstract contract TokenageERC20UtilityFullUpgradeable is
      * - `owner` cannot be the zero address.
      * - `amount` claimed amount to mint (wei)
      */
-    function mint(address owner, uint256 amount)
-        external
-        whenNotPaused
-        nonReentrant
-    {
-        require(hasRole(MINTER_ROLE, msg.sender), "Not minter");
+    function mint(address owner, uint256 amount) external whenNotPaused nonReentrant {
+        require(hasRole(MINTER_ROLE, msg.sender), 'Not minter');
         _mint(owner, amount);
         emit TokenMinted(owner, amount);
     }
@@ -109,16 +94,12 @@ abstract contract TokenageERC20UtilityFullUpgradeable is
         uint256 amount,
         bytes memory signature
     ) public whenNotPaused nonReentrant {
-        bytes32 hashStruct = keccak256(
-            abi.encode(_MINT_HASH, owner, amount, _useNonce(owner))
-        );
-        bytes32 hash = keccak256(
-            abi.encodePacked("\x19\x01", _eip712DomainHash, hashStruct)
-        );
+        bytes32 hashStruct = keccak256(abi.encode(_MINT_HASH, owner, amount, _useNonce(owner)));
+        bytes32 hash = keccak256(abi.encodePacked('\x19\x01', _eip712DomainHash, hashStruct));
         address signer = hash.recover(signature);
 
-        require(hasRole(MINTER_ROLE, signer), "Bad sign");
-        require(signer != address(0), "Signer null");
+        require(hasRole(MINTER_ROLE, signer), 'Bad sign');
+        require(signer != address(0), 'Signer null');
 
         _mint(owner, amount);
 
@@ -137,11 +118,4 @@ abstract contract TokenageERC20UtilityFullUpgradeable is
     }
 
     function _contractNameHash() internal pure virtual returns (bytes32);
-
-    /**
-     * @dev This empty reserved space is put in place to allow future versions to add new
-     * variables without shifting down storage in the inheritance chain.
-     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
-     */
-    uint256[48] private __gap;
 }

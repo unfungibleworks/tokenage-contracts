@@ -13,7 +13,7 @@
   },
   "scripts": {
     "compile": "hardhat compile",
-    "lint:sol": "solhint contracts/**/*.sol && prettier -c contracts/**/*.sol",
-    "lint:sol:fix": "prettier --write contracts/**/*.sol"
+    "lint:sol": "solhint contracts/*.sol contracts/**/*.sol && prettier -c contracts/*.sol contracts/**/*.sol",
+    "lint:sol:fix": "prettier --write contracts/*.sol contracts/**/*.sol"
   }
 }
