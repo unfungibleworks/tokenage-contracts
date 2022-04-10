@@ -1,17 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0 <0.9.0;
 
-import "hardhat/console.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
+import 'hardhat/console.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol';
 
-import "./TokenageERC721PermitUpgradeable.sol";
+import './TokenageERC721PermitUpgradeable.sol';
+import '../../../DefaultPausableUpgradeable.sol';
 
 /**
  * @dev Abstract contract of the ERC721 with some extensions to support signature base operations.
@@ -28,32 +25,22 @@ import "./TokenageERC721PermitUpgradeable.sol";
  * of the user in these operations.
  */
 abstract contract TokenageERC721FullUpgradeable is
+    DefaultPausableUpgradeable,
     ERC721EnumerableUpgradeable,
     ERC721URIStorageUpgradeable,
-    PausableUpgradeable,
-    AccessControlUpgradeable,
     ERC721BurnableUpgradeable,
-    UUPSUpgradeable,
-    ReentrancyGuardUpgradeable,
     TokenageERC721PermitUpgradeable
 {
     using ECDSAUpgradeable for bytes32;
 
     event TokenMinted(address owner, string tokenURI, uint256 tokenId);
 
-    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-    bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
+    bytes32 public constant MINTER_ROLE = keccak256('MINTER_ROLE');
 
     bytes32 private constant _EIP712DOMAIN_HASH =
-        keccak256(
-            "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-        );
-    bytes32 private constant _VERSION_HASH = keccak256(bytes("1"));
-    bytes32 private constant _MINT_HASH =
-        keccak256(
-            "Mint(address >Owner,uint256 >Token ID,bytes32 >Token URI Hash)"
-        );
+        keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)');
+    bytes32 private constant _VERSION_HASH = keccak256(bytes('1'));
+    bytes32 private constant _MINT_HASH = keccak256('Mint(address >Owner,uint256 >Token ID,bytes32 >Token URI Hash)');
     bytes32 private _eip712DomainHash;
 
     /**
@@ -66,17 +53,12 @@ abstract contract TokenageERC721FullUpgradeable is
      * }
      */
     // solhint-disable-next-line func-name-mixedcase
-    function __TokenageERC721FullUpgradeable_init(
-        string memory name,
-        string memory symbol
-    ) internal onlyInitializing {
+    function __TokenageERC721Full_init(string memory name, string memory symbol) internal onlyInitializing {
+        __DefaultPausable_init();
         __ERC721_init(name, symbol);
         __ERC721Enumerable_init();
         __ERC721URIStorage_init();
-        __Pausable_init();
-        __AccessControl_init();
         __ERC721Burnable_init();
-        __UUPSUpgradeable_init();
         __TokenageERC721Permit_init(name);
 
         uint256 chainId;
@@ -84,35 +66,13 @@ abstract contract TokenageERC721FullUpgradeable is
             chainId := chainid()
         }
         _eip712DomainHash = keccak256(
-            abi.encode(
-                _EIP712DOMAIN_HASH,
-                _contractNameHash(),
-                _VERSION_HASH,
-                chainId,
-                address(this)
-            )
+            abi.encode(_EIP712DOMAIN_HASH, _contractNameHash(), _VERSION_HASH, chainId, address(this))
         );
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(MINTER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
-    }
-
-    /**
-     * @dev Disallow contract operations from users.
-     * Use this to prevent users from minting, transferring etc.
-     */
-    function pause() external onlyRole(PAUSER_ROLE) {
-        _pause();
-    }
-
-    /**
-     * @dev Allow contract operations from users.
-     * See {pause} method.
-     */
-    function unpause() external onlyRole(PAUSER_ROLE) {
-        _unpause();
     }
 
     /**
@@ -133,7 +93,7 @@ abstract contract TokenageERC721FullUpgradeable is
         uint256 tokenId,
         string memory metadataURI
     ) external virtual whenNotPaused nonReentrant {
-        require(hasRole(MINTER_ROLE, msg.sender), "Not minter");
+        require(hasRole(MINTER_ROLE, msg.sender), 'Not minter');
         _safeMint(owner, tokenId);
         _setTokenURI(tokenId, metadataURI);
         emit TokenMinted(owner, metadataURI, tokenId);
@@ -160,15 +120,11 @@ abstract contract TokenageERC721FullUpgradeable is
         bytes memory signature
     ) external virtual whenNotPaused nonReentrant {
         bytes32 tokenHash = keccak256(abi.encode(metadataURI));
-        bytes32 hashStruct = keccak256(
-            abi.encode(_MINT_HASH, owner, tokenId, tokenHash)
-        );
-        bytes32 hash = keccak256(
-            abi.encodePacked("\x19\x01", _eip712DomainHash, hashStruct)
-        );
+        bytes32 hashStruct = keccak256(abi.encode(_MINT_HASH, owner, tokenId, tokenHash));
+        bytes32 hash = keccak256(abi.encodePacked('\x19\x01', _eip712DomainHash, hashStruct));
         address signer = hash.recover(signature);
-        require(hasRole(MINTER_ROLE, signer), "Bad sign");
-        require(signer != address(0), "Signer null");
+        require(hasRole(MINTER_ROLE, signer), 'Bad sign');
+        require(signer != address(0), 'Signer null');
 
         _safeMint(owner, tokenId);
         _setTokenURI(tokenId, metadataURI);
@@ -183,25 +139,11 @@ abstract contract TokenageERC721FullUpgradeable is
         address from,
         address to,
         uint256 tokenId
-    )
-        internal
-        override(ERC721Upgradeable, ERC721EnumerableUpgradeable)
-        whenNotPaused
-    {
+    ) internal override(ERC721Upgradeable, ERC721EnumerableUpgradeable) whenNotPaused {
         super._beforeTokenTransfer(from, to, tokenId);
     }
 
-    function _authorizeUpgrade(address newImplementation)
-        internal
-        override
-        onlyRole(UPGRADER_ROLE)
-    {}
-
-    function _burn(uint256 tokenId)
-        internal
-        override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
-        whenNotPaused
-    {
+    function _burn(uint256 tokenId) internal override(ERC721Upgradeable, ERC721URIStorageUpgradeable) whenNotPaused {
         super._burn(tokenId);
     }
 
@@ -217,20 +159,9 @@ abstract contract TokenageERC721FullUpgradeable is
     function supportsInterface(bytes4 interfaceId)
         public
         view
-        override(
-            ERC721Upgradeable,
-            ERC721EnumerableUpgradeable,
-            AccessControlUpgradeable
-        )
+        override(ERC721Upgradeable, ERC721EnumerableUpgradeable, AccessControlUpgradeable)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
     }
-
-    /**
-     * @dev This empty reserved space is put in place to allow future versions to add new
-     * variables without shifting down storage in the inheritance chain.
-     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
-     */
-    uint256[50] private __gap;
 }

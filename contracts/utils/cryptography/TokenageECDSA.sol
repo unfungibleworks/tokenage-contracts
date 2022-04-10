@@ -42,7 +42,7 @@ library TokenageECDSA {
             }
             return convertSignatureToRSV(r, vs);
         } else {
-            revert("Invalid signature");
+            revert('Invalid signature');
         }
     }
 
@@ -55,10 +55,7 @@ library TokenageECDSA {
             uint8
         )
     {
-        bytes32 s = vs &
-            bytes32(
-                0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            );
+        bytes32 s = vs & bytes32(0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
         uint8 v = uint8((uint256(vs) >> 255) + 27);
         return (r, s, v);
     }
