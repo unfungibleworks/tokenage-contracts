@@ -33,10 +33,14 @@ abstract contract TokenageERC20FullUpgradeable is DefaultPausableUpgradeable, ER
      * }
      */
     // solhint-disable-next-line func-name-mixedcase
-    function __TokenageERC20Full_init(string memory name, string memory symbol) internal onlyInitializing {
+    function __TokenageERC20Full_init(
+        address adminAddress,
+        string memory name,
+        string memory symbol
+    ) internal onlyInitializing {
         __ERC20_init(name, symbol);
         __ERC20Burnable_init();
-        __DefaultPausable_init();
+        __DefaultPausable_init(adminAddress);
     }
 
     function _beforeTokenTransfer(

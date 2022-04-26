@@ -17,15 +17,16 @@ abstract contract DefaultPausableUpgradeable is
     bytes32 public constant UPGRADER_ROLE = keccak256('UPGRADER_ROLE');
 
     // solhint-disable-next-line func-name-mixedcase, private-vars-leading-underscore
-    function __DefaultPausable_init() public onlyInitializing {
+    function __DefaultPausable_init(address adminAddress) public onlyInitializing {
+        require(adminAddress != address(0), 'adminAddress null');
         __Pausable_init();
         __AccessControl_init();
         __ReentrancyGuard_init();
         __UUPSUpgradeable_init();
 
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(PAUSER_ROLE, msg.sender);
-        _grantRole(UPGRADER_ROLE, msg.sender);
+        _grantRole(DEFAULT_ADMIN_ROLE, adminAddress);
+        _grantRole(PAUSER_ROLE, adminAddress);
+        _grantRole(UPGRADER_ROLE, adminAddress);
     }
 
     function pause() external onlyRole(PAUSER_ROLE) {

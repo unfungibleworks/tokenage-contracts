@@ -14,11 +14,16 @@ abstract contract TokenageMysteryBoxRevealableBurnableERC721Upgradeable is
     TokenageMysteryBoxBurnableERC721Upgradeable
 {
     // solhint-disable-next-line func-name-mixedcase, private-vars-leading-underscore
-    function __TokenageMysteryBoxRevealableBurnableERC721_init(string memory name, string memory symbol)
-        public
-        onlyInitializing
-    {
-        __TokenageMysteryBoxRevealableERC721_init(name, symbol);
+    function __TokenageMysteryBoxRevealableBurnableERC721_init(
+        address adminAddress,
+        address minterAddress,
+        address burnerAddress,
+        string memory name,
+        string memory symbol
+    ) public onlyInitializing {
+        require(minterAddress != address(0), 'minterAddress null');
+        __TokenageMysteryBoxRevealableERC721_init(adminAddress, minterAddress, name, symbol);
+        _grantRole(BURNER_ROLE, burnerAddress);
     }
 
     // The following functions are overrides required by Solidity.

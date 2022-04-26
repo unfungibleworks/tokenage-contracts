@@ -29,11 +29,12 @@ abstract contract TokenageERC20GovernanceFullUpgradeable is TokenageERC20FullUpg
      */
     // solhint-disable-next-line func-name-mixedcase
     function __TokenageERC20GovernanceFull_init(
+        address adminAddress,
         string memory name,
         string memory symbol,
         uint256 totalSupply
     ) internal onlyInitializing {
-        __TokenageERC20Full_init(name, symbol);
+        __TokenageERC20Full_init(adminAddress, name, symbol);
         _mint(msg.sender, totalSupply);
         emit TokenMinted(msg.sender, totalSupply);
     }

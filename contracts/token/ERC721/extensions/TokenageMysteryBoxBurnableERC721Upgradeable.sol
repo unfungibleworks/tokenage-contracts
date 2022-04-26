@@ -19,9 +19,13 @@ abstract contract TokenageMysteryBoxBurnableERC721Upgradeable is
     mapping(uint256 => uint256) public tokenIdToUserSeed;
 
     // solhint-disable-next-line func-name-mixedcase, private-vars-leading-underscore
-    function __TokenageMysteryBoxBurnableERC721_init(string memory name, string memory symbol) public onlyInitializing {
+    function __TokenageMysteryBoxBurnableERC721_init(
+        address adminAddress,
+        string memory name,
+        string memory symbol
+    ) public onlyInitializing {
         __ERC721_init(name, symbol);
-        __DefaultPausable_init();
+        __DefaultPausable_init(adminAddress);
     }
 
     function getType(uint256 tokenId) external view override returns (uint16) {

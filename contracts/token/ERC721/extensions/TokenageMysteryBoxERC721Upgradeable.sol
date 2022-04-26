@@ -19,8 +19,15 @@ abstract contract TokenageMysteryBoxERC721Upgradeable is
     CountersUpgradeable.Counter private _tokenIdCounter;
 
     // solhint-disable-next-line func-name-mixedcase, private-vars-leading-underscore
-    function __TokenageMysteryBoxERC721_init(string memory name, string memory symbol) public onlyInitializing {
-        __TokenageMysteryBoxBurnableERC721_init(name, symbol);
+    function __TokenageMysteryBoxERC721_init(
+        address adminAddress,
+        address minterAddress,
+        string memory name,
+        string memory symbol
+    ) public onlyInitializing {
+        require(minterAddress != address(0), 'minterAddress null');
+        __TokenageMysteryBoxBurnableERC721_init(adminAddress, name, symbol);
+        _grantRole(MINTER_ROLE, minterAddress);
     }
 
     function mintTo(
