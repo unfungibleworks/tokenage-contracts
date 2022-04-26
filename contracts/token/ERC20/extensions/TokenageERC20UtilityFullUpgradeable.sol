@@ -45,8 +45,14 @@ abstract contract TokenageERC20UtilityFullUpgradeable is TokenageERC20FullUpgrad
      * }
      */
     // solhint-disable-next-line func-name-mixedcase
-    function __TokenageERC20UtilityFull_init(string memory name, string memory symbol) internal onlyInitializing {
-        __TokenageERC20Full_init(name, symbol);
+    function __TokenageERC20UtilityFull_init(
+        address adminAddress,
+        address minterAddress,
+        string memory name,
+        string memory symbol
+    ) internal onlyInitializing {
+        require(minterAddress != address(0), 'minterAddress null');
+        __TokenageERC20Full_init(adminAddress, name, symbol);
 
         uint256 chainId;
         assembly {
@@ -56,7 +62,7 @@ abstract contract TokenageERC20UtilityFullUpgradeable is TokenageERC20FullUpgrad
             abi.encode(_EIP712DOMAIN_HASH, _contractNameHash(), _VERSION_HASH, chainId, address(this))
         );
 
-        _grantRole(MINTER_ROLE, msg.sender);
+        _grantRole(MINTER_ROLE, minterAddress);
     }
 
     /**

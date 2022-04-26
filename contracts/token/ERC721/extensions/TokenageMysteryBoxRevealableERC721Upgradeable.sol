@@ -17,9 +17,16 @@ abstract contract TokenageMysteryBoxRevealableERC721Upgradeable is
     bytes32 public constant MINTER_ROLE = keccak256('MINTER_ROLE');
 
     // solhint-disable-next-line func-name-mixedcase, private-vars-leading-underscore
-    function __TokenageMysteryBoxRevealableERC721_init(string memory name, string memory symbol) public onlyInitializing {
+    function __TokenageMysteryBoxRevealableERC721_init(
+        address adminAddress,
+        address minterAddress,
+        string memory name,
+        string memory symbol
+    ) public onlyInitializing {
+        require(minterAddress != address(0), 'minterAddress null');
         __ERC721_init(name, symbol);
-        __DefaultPausable_init();
+        __DefaultPausable_init(adminAddress);
+        _grantRole(MINTER_ROLE, minterAddress);
     }
 
     function mintTo(

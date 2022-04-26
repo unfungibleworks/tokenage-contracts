@@ -53,8 +53,14 @@ abstract contract TokenageERC721FullUpgradeable is
      * }
      */
     // solhint-disable-next-line func-name-mixedcase
-    function __TokenageERC721Full_init(string memory name, string memory symbol) internal onlyInitializing {
-        __DefaultPausable_init();
+    function __TokenageERC721Full_init(
+        address adminAddress,
+        address minterAddress,
+        string memory name,
+        string memory symbol
+    ) internal onlyInitializing {
+        require(minterAddress != address(0), 'minterAddress null');
+        __DefaultPausable_init(adminAddress);
         __ERC721_init(name, symbol);
         __ERC721Enumerable_init();
         __ERC721URIStorage_init();
@@ -69,10 +75,7 @@ abstract contract TokenageERC721FullUpgradeable is
             abi.encode(_EIP712DOMAIN_HASH, _contractNameHash(), _VERSION_HASH, chainId, address(this))
         );
 
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(PAUSER_ROLE, msg.sender);
-        _grantRole(MINTER_ROLE, msg.sender);
-        _grantRole(UPGRADER_ROLE, msg.sender);
+        _grantRole(MINTER_ROLE, minterAddress);
     }
 
     /**

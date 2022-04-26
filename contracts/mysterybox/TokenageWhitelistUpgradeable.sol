@@ -10,9 +10,10 @@ abstract contract TokenageWhitelistUpgradeable is ITokenageWhitelistUpgradeable,
     mapping(address => bool) private _whitelistMapping;
 
     // solhint-disable-next-line func-name-mixedcase, private-vars-leading-underscore
-    function __TokenageWhitelist_init() public onlyInitializing {
-        __DefaultPausable_init();
-        _grantRole(UPDATER_ROLE, msg.sender);
+    function __TokenageWhitelist_init(address adminAddress, address updaterAddress) public onlyInitializing {
+        require(updaterAddress != address(0), 'updaterAddress null');
+        __DefaultPausable_init(adminAddress);
+        _grantRole(UPDATER_ROLE, updaterAddress);
     }
 
     /**
