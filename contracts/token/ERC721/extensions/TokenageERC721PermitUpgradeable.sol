@@ -42,7 +42,7 @@ abstract contract TokenageERC721PermitUpgradeable is ERC721Upgradeable, ITokenag
     // solhint-disable-next-line func-name-mixedcase
     function __TokenageERC721Permit_init_unchained() internal onlyInitializing {
         _PERMIT_TYPEHASH = keccak256(
-            'TokenagePermitERC721(address >From,address >To,uint256 >Token ID,uint256 >Nonce,uint256 >Deadline)'
+            'TokenagePermitERC721(address from,address to,uint256 tokenId,uint256 nonce,uint256 deadline)'
         );
     }
 

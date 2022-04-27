@@ -40,7 +40,7 @@ abstract contract TokenageERC721FullUpgradeable is
     bytes32 private constant _EIP712DOMAIN_HASH =
         keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)');
     bytes32 private constant _VERSION_HASH = keccak256(bytes('1'));
-    bytes32 private constant _MINT_HASH = keccak256('Mint(address >Owner,uint256 >Token ID,bytes32 >Token URI Hash)');
+    bytes32 private constant _MINT_HASH = keccak256('Mint(address owner,uint256 tokenId,bytes32 tokenURIHash)');
     bytes32 private _eip712DomainHash;
 
     /**
