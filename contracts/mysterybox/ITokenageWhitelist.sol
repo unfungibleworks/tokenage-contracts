@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0 <0.9.0;
 
-interface ITokenageWhitelistUpgradeable {
+interface ITokenageWhitelist {
     event AccountsAdded(uint256 totalAddedAccounts);
     event AccountsRemoved(uint256 totalRemovedAccounts);
 

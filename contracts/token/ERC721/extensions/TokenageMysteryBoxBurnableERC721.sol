@@ -2,30 +2,23 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 import 'hardhat/console.sol';
-import '@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol';
+import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 
 import './ITokenageMysteryBoxBurnable.sol';
-import '../../../DefaultPausableUpgradeable.sol';
+import '../../../DefaultPausable.sol';
 
-abstract contract TokenageMysteryBoxBurnableERC721Upgradeable is
-    DefaultPausableUpgradeable,
-    ERC721Upgradeable,
-    ITokenageMysteryBoxBurnable
-{
+abstract contract TokenageMysteryBoxBurnableERC721 is DefaultPausable, ERC721, ITokenageMysteryBoxBurnable {
     bytes32 public constant BURNER_ROLE = keccak256('BURNER_ROLE');
 
     mapping(uint256 => uint16) public tokenIdToType;
     mapping(uint256 => uint256) public tokenIdToUserSeed;
 
-    // solhint-disable-next-line func-name-mixedcase, private-vars-leading-underscore
-    function __TokenageMysteryBoxBurnableERC721_init(
+    constructor(
         address adminAddress,
         address burnerAddress,
         string memory name,
         string memory symbol
-    ) public onlyInitializing {
-        __ERC721_init(name, symbol);
-        __DefaultPausable_init(adminAddress);
+    ) ERC721(name, symbol) DefaultPausable(adminAddress) {
         _grantRole(BURNER_ROLE, burnerAddress);
     }
 
@@ -86,13 +79,7 @@ abstract contract TokenageMysteryBoxBurnableERC721Upgradeable is
         }
     }
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override(ERC721Upgradeable, AccessControlUpgradeable)
-        returns (bool)
-    {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, AccessControl) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 }

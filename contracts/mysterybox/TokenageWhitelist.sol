@@ -2,17 +2,15 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 import './ITokenageWhitelist.sol';
-import '../DefaultPausableUpgradeable.sol';
+import '../DefaultPausable.sol';
 
-abstract contract TokenageWhitelistUpgradeable is ITokenageWhitelist, DefaultPausableUpgradeable {
+abstract contract TokenageWhitelist is ITokenageWhitelist, DefaultPausable {
     bytes32 public constant UPDATER_ROLE = keccak256('UPDATER_ROLE');
 
     mapping(address => bool) private _whitelistMapping;
 
-    // solhint-disable-next-line func-name-mixedcase, private-vars-leading-underscore
-    function __TokenageWhitelist_init(address adminAddress, address updaterAddress) public onlyInitializing {
+    constructor(address adminAddress, address updaterAddress) DefaultPausable(adminAddress) {
         require(updaterAddress != address(0), 'updaterAddress null');
-        __DefaultPausable_init(adminAddress);
         _grantRole(UPDATER_ROLE, updaterAddress);
     }
 

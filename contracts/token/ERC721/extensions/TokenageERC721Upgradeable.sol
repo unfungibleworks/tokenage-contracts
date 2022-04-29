@@ -24,7 +24,7 @@ import '../../../DefaultPausableUpgradeable.sol';
  * marketplace might require to escrow a token and transfer it afterwards to a buyer without a manual intervention
  * of the user in these operations.
  */
-abstract contract TokenageERC721FullUpgradeable is
+abstract contract TokenageERC721Upgradeable is
     DefaultPausableUpgradeable,
     ERC721EnumerableUpgradeable,
     ERC721URIStorageUpgradeable,
@@ -44,16 +44,16 @@ abstract contract TokenageERC721FullUpgradeable is
     bytes32 private _eip712DomainHash;
 
     /**
-     * @dev When extending this smart contract, call this {__TokenageERC721FullUpgradeable_init} method on {initialize}
+     * @dev When extending this smart contract, call this {__TokenageERC721Upgradeable_init} method on {initialize}
      * method.
      *
      * Example:
      * function initialize() public initializer {
-     *    __TokenageERC721FullUpgradeable_init('YourTokenName', 'YOURSYMBOL');
+     *    __TokenageERC721Upgradeable_init('YourTokenName', 'YOURSYMBOL');
      * }
      */
     // solhint-disable-next-line func-name-mixedcase
-    function __TokenageERC721Full_init(
+    function __TokenageERC721_init(
         address adminAddress,
         address minterAddress,
         string memory name,

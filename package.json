@@ -2,9 +2,9 @@
   "name": "@tokenage/tokenage-contracts",
   "version": "1.0.0",
   "license": "MIT",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
+    "@openzeppelin/contracts": "^4.6.0",
     "@openzeppelin/contracts-upgradeable": "^4.5.1",
     "hardhat": "^2.8.4",
     "prettier": "^2.5.1",

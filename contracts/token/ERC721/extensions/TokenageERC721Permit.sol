@@ -2,10 +2,10 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 import 'hardhat/console.sol';
-import '@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/utils/cryptography/draft-EIP712Upgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol';
+import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
+import '@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol';
+import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
+import '@openzeppelin/contracts/utils/Counters.sol';
 
 import './ITokenageERC721Permit.sol';
 
@@ -16,17 +16,17 @@ import './ITokenageERC721Permit.sol';
  * presenting a message signed by the account. By not relying on `{IERC721-approve}`, the token holder account doesn't
  * need to send a transaction, and thus is not required to hold Ether at all.
  *
- * This implementation was inspired by openzeppelin's ERC20PermitUpgradeable.
+ * This implementation was inspired by openzeppelin's ERC20Permit.
  * This implementation will likely be deprecated after the official implementation is released by openzeppelin.
  * Make sure to implement your smart contracts accordingly to be able to upgrade it properly.
  */
-abstract contract TokenageERC721PermitUpgradeable is ERC721Upgradeable, ITokenageERC721Permit, EIP712Upgradeable {
-    using CountersUpgradeable for CountersUpgradeable.Counter;
+abstract contract TokenageERC721Permit is ERC721, ITokenageERC721Permit, EIP712 {
+    using Counters for Counters.Counter;
 
-    mapping(address => CountersUpgradeable.Counter) private _nonces;
+    mapping(address => Counters.Counter) private _nonces;
 
     // solhint-disable-next-line var-name-mixedcase
-    bytes32 private _PERMIT_TYPEHASH;
+    bytes32 private immutable _PERMIT_TYPEHASH;
 
     /**
      * @dev Initializes the {EIP712} domain separator using the `name` parameter, and setting `version` to `'1'`.
@@ -34,13 +34,7 @@ abstract contract TokenageERC721PermitUpgradeable is ERC721Upgradeable, ITokenag
      * It's a good idea to use the same `name` that is defined as the ERC721 token name.
      */
     // solhint-disable-next-line func-name-mixedcase
-    function __TokenageERC721Permit_init(string memory name) internal onlyInitializing {
-        __EIP712_init(name, '1');
-        __TokenageERC721Permit_init_unchained();
-    }
-
-    // solhint-disable-next-line func-name-mixedcase
-    function __TokenageERC721Permit_init_unchained() internal onlyInitializing {
+    constructor(string memory name) EIP712(name, '1') {
         _PERMIT_TYPEHASH = keccak256(
             'TokenagePermitERC721(address from,address to,uint256 tokenId,uint256 nonce,uint256 deadline)'
         );
@@ -62,7 +56,7 @@ abstract contract TokenageERC721PermitUpgradeable is ERC721Upgradeable, ITokenag
 
         bytes32 hash = _hashTypedDataV4(structHash);
 
-        address signer = ECDSAUpgradeable.recover(hash, signature);
+        address signer = ECDSA.recover(hash, signature);
         require(signer == owner, 'TokenageERC721Permit: invalid signature');
 
         _approve(spender, tokenId);
@@ -89,7 +83,7 @@ abstract contract TokenageERC721PermitUpgradeable is ERC721Upgradeable, ITokenag
      * _Available since v4.1._
      */
     function _useNonce(address owner) internal virtual returns (uint256 current) {
-        CountersUpgradeable.Counter storage nonce = _nonces[owner];
+        Counters.Counter storage nonce = _nonces[owner];
         current = nonce.current();
         nonce.increment();
     }

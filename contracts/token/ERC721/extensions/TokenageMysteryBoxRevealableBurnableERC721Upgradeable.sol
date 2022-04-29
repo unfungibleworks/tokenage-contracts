@@ -2,9 +2,7 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 import 'hardhat/console.sol';
-import '@openzeppelin/contracts-upgradeable/interfaces/IERC165Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol';
 
 import './TokenageMysteryBoxRevealableERC721Upgradeable.sol';
 import './TokenageMysteryBoxBurnableERC721Upgradeable.sol';

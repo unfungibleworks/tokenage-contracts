@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0 <0.9.0;
 
-interface ITokenageMysteryBoxRevealableERC721Upgradeable {
+interface ITokenageMysteryBoxRevealable {
     event MysteryBoxRevealableTokenMinted(address indexed owner, uint256 tokenId, uint16 ticketType);
 
     function mintTo(
