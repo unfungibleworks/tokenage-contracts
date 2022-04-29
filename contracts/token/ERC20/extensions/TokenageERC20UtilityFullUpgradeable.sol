@@ -26,7 +26,7 @@ abstract contract TokenageERC20UtilityFullUpgradeable is TokenageERC20FullUpgrad
 
     bytes32 public constant MINTER_ROLE = keccak256('MINTER_ROLE');
 
-    bytes32 private constant _MINT_HASH = keccak256('Mint(address >Owner,uint256 >Amount,uint256 >Nonce)');
+    bytes32 private constant _MINT_HASH = keccak256('Mint(address owner,uint256 amount,uint256 nonce)');
 
     bytes32 private constant _VERSION_HASH = keccak256(bytes('1'));
     bytes32 private constant _EIP712DOMAIN_HASH =
