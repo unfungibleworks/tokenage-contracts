@@ -4,7 +4,7 @@ pragma solidity >=0.8.0 <0.9.0;
 import '@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol';
 
-import './TokenageERC20FullUpgradeable.sol';
+import './TokenageERC20TokenUpgradeable.sol';
 
 /**
  * @dev Abstract contract of the ERC20 with some extensions to support signature base operations.
@@ -20,7 +20,7 @@ import './TokenageERC20FullUpgradeable.sol';
  * marketplace might require to escrow a token and transfer it afterwards to a buyer without a manual intervention
  * of the user in these operations.
  */
-abstract contract TokenageERC20UtilityFullUpgradeable is TokenageERC20FullUpgradeable {
+abstract contract TokenageERC20UtilityTokenUpgradeable is TokenageERC20TokenUpgradeable {
     using CountersUpgradeable for CountersUpgradeable.Counter;
     using ECDSAUpgradeable for bytes32;
 
@@ -36,23 +36,24 @@ abstract contract TokenageERC20UtilityFullUpgradeable is TokenageERC20FullUpgrad
     mapping(address => CountersUpgradeable.Counter) private _nonces;
 
     /**
-     * @dev When extending this smart contract, call this {__TokenageERC20UtilityFullUpgradeable_init} method on {initialize}
+     * @dev When extending this smart contract, call this {__TokenageERC20UtilityTokenUpgradeable_init} method on {initialize}
      * method.
      *
      * Example:
      * function initialize() public initializer {
-     *    __TokenageERC20UtilityFullUpgradeable_init('YourTokenName', 'YOURSYMBOL');
+     *    __TokenageERC20UtilityTokenUpgradeable_init('YourTokenName', 'YOURSYMBOL');
      * }
      */
     // solhint-disable-next-line func-name-mixedcase
-    function __TokenageERC20UtilityFull_init(
+    function __TokenageERC20UtilityToken_init(
         address adminAddress,
         address minterAddress,
         string memory name,
-        string memory symbol
+        string memory symbol,
+        uint8 decimals
     ) internal onlyInitializing {
         require(minterAddress != address(0), 'minterAddress null');
-        __TokenageERC20Full_init(adminAddress, name, symbol);
+        __TokenageERC20Token_init(adminAddress, name, symbol, decimals);
 
         uint256 chainId;
         assembly {

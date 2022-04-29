@@ -12,7 +12,7 @@ pragma solidity >=0.8.0 <0.9.0;
  * This interface will likely be deprecated after the official implementation is released by openzeppelin.
  * Make sure to implement your smart contracts accordingly to be able to upgrade it properly.
  */
-interface ITokenageERC721PermitUpgradeable {
+interface ITokenageERC721Permit {
     /**
      * @dev Sets `value` as the allowance of `spender` over ``owner``'s tokens,
      * given ``owner``'s signed approval.

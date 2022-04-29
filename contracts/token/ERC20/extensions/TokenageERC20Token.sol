@@ -2,9 +2,9 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 import 'hardhat/console.sol';
-import '@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable.sol';
+import '@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol';
 
-import '../../../DefaultPausableUpgradeable.sol';
+import '../../../DefaultPausable.sol';
 
 /**
  * @dev Abstract contract of the ERC20 with some extensions to support signature base operations.
@@ -20,27 +20,22 @@ import '../../../DefaultPausableUpgradeable.sol';
  * marketplace might require to escrow a token and transfer it afterwards to a buyer without a manual intervention
  * of the user in these operations.
  */
-abstract contract TokenageERC20FullUpgradeable is DefaultPausableUpgradeable, ERC20BurnableUpgradeable {
+abstract contract TokenageERC20Token is DefaultPausable, ERC20Burnable {
     event TokenMinted(address owner, uint256 amount);
 
-    /**
-     * @dev When extending this smart contract, call this {__TokenageERC20FullUpgradeable_init} method on {initialize}
-     * method.
-     *
-     * Example:
-     * function initialize() public initializer {
-     *    __TokenageERC20FullUpgradeable_init('YourTokenName', 'YOURSYMBOL');
-     * }
-     */
-    // solhint-disable-next-line func-name-mixedcase
-    function __TokenageERC20Full_init(
+    uint8 private immutable _decimals;
+
+    constructor(
         address adminAddress,
         string memory name,
-        string memory symbol
-    ) internal onlyInitializing {
-        __ERC20_init(name, symbol);
-        __ERC20Burnable_init();
-        __DefaultPausable_init(adminAddress);
+        string memory symbol,
+        uint8 decimals_
+    ) ERC20(name, symbol) DefaultPausable(adminAddress) {
+        _decimals = decimals_;
+    }
+
+    function decimals() public view override returns (uint8) {
+        return _decimals;
     }
 
     function _beforeTokenTransfer(

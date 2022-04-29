@@ -1,30 +1,28 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0 <0.9.0;
 
-import '@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol';
+import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
+import '@openzeppelin/contracts/utils/Counters.sol';
 
-import '../../../DefaultPausableUpgradeable.sol';
+import '../../../DefaultPausable.sol';
 import './ITokenageMysteryBox.sol';
-import './TokenageMysteryBoxBurnableERC721Upgradeable.sol';
+import './TokenageMysteryBoxBurnableERC721.sol';
 
-abstract contract TokenageMysteryBoxERC721Upgradeable is TokenageMysteryBoxBurnableERC721Upgradeable, ITokenageMysteryBox {
-    using CountersUpgradeable for CountersUpgradeable.Counter;
+abstract contract TokenageMysteryBoxERC721 is TokenageMysteryBoxBurnableERC721, ITokenageMysteryBox {
+    using Counters for Counters.Counter;
 
     bytes32 public constant MINTER_ROLE = keccak256('MINTER_ROLE');
 
-    CountersUpgradeable.Counter private _tokenIdCounter;
+    Counters.Counter private _tokenIdCounter;
 
-    // solhint-disable-next-line func-name-mixedcase, private-vars-leading-underscore
-    function __TokenageMysteryBoxERC721_init(
+    constructor(
         address adminAddress,
         address minterAddress,
         address burnerAddress,
         string memory name,
         string memory symbol
-    ) public onlyInitializing {
+    ) TokenageMysteryBoxBurnableERC721(adminAddress, burnerAddress, name, symbol) {
         require(minterAddress != address(0), 'minterAddress null');
-        __TokenageMysteryBoxBurnableERC721_init(adminAddress, burnerAddress, name, symbol);
         _grantRole(MINTER_ROLE, minterAddress);
     }
 

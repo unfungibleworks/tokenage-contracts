@@ -2,28 +2,25 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 import 'hardhat/console.sol';
-import '@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol';
+import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 
 import './ITokenageMysteryBoxRevealable.sol';
-import '../../../DefaultPausableUpgradeable.sol';
+import './TokenageMysteryBoxBurnableERC721.sol';
 
-abstract contract TokenageMysteryBoxRevealableERC721Upgradeable is
-    DefaultPausableUpgradeable,
-    ERC721Upgradeable,
+abstract contract TokenageMysteryBoxRevealableBurnableERC721 is
+    TokenageMysteryBoxBurnableERC721,
     ITokenageMysteryBoxRevealable
 {
     bytes32 public constant MINTER_ROLE = keccak256('MINTER_ROLE');
 
-    // solhint-disable-next-line func-name-mixedcase, private-vars-leading-underscore
-    function __TokenageMysteryBoxRevealableERC721_init(
+    constructor(
         address adminAddress,
         address minterAddress,
+        address burnerAddress,
         string memory name,
         string memory symbol
-    ) public onlyInitializing {
+    ) TokenageMysteryBoxBurnableERC721(adminAddress, burnerAddress, name, symbol) {
         require(minterAddress != address(0), 'minterAddress null');
-        __ERC721_init(name, symbol);
-        __DefaultPausable_init(adminAddress);
         _grantRole(MINTER_ROLE, minterAddress);
     }
 
@@ -58,25 +55,7 @@ abstract contract TokenageMysteryBoxRevealableERC721Upgradeable is
         _setType(tokenId, ticketType);
     }
 
-    function _setType(uint256 tokenId, uint16 ticketType) internal virtual {}
-
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 tokenId
-    ) internal virtual override whenNotPaused {
-        super._beforeTokenTransfer(from, to, tokenId);
-    }
-
-    // The following functions are overrides required by Solidity.
-
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override(ERC721Upgradeable, AccessControlUpgradeable)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
+    function _setType(uint256 tokenId, uint16 ticketType) internal override {
+        super._setType(tokenId, ticketType);
     }
 }
