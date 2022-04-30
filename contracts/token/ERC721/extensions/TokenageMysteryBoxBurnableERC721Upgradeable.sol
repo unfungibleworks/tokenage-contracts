@@ -3,6 +3,7 @@ pragma solidity >=0.8.0 <0.9.0;
 
 import 'hardhat/console.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol';
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 import './ITokenageMysteryBoxBurnable.sol';
 import '../../../DefaultPausableUpgradeable.sol';
@@ -12,6 +13,8 @@ abstract contract TokenageMysteryBoxBurnableERC721Upgradeable is
     ERC721Upgradeable,
     ITokenageMysteryBoxBurnable
 {
+    using Strings for uint16;
+
     bytes32 public constant BURNER_ROLE = keccak256('BURNER_ROLE');
 
     mapping(uint256 => uint16) public tokenIdToType;
@@ -68,6 +71,13 @@ abstract contract TokenageMysteryBoxBurnableERC721Upgradeable is
             }
         }
         return true;
+    }
+
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+        require(_exists(tokenId), 'ERC721Metadata: URI query for nonexistent token');
+
+        string memory baseURI = _baseURI();
+        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenIdToType[tokenId].toString())) : '';
     }
 
     function _setType(uint256 tokenId, uint16 ticketType) internal virtual {

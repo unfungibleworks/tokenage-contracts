@@ -54,4 +54,14 @@ abstract contract TokenageMysteryBoxRevealableBurnableERC721Upgradeable is
     {
         return super.supportsInterface(interfaceId);
     }
+
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        virtual
+        override(TokenageMysteryBoxBurnableERC721Upgradeable, ERC721Upgradeable)
+        returns (string memory)
+    {
+        return super.tokenURI(tokenId);
+    }
 }
