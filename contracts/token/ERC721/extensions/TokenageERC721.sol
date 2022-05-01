@@ -24,13 +24,7 @@ import '../../../DefaultPausable.sol';
  * marketplace might require to escrow a token and transfer it afterwards to a buyer without a manual intervention
  * of the user in these operations.
  */
-abstract contract TokenageERC721 is
-    DefaultPausable,
-    ERC721Enumerable,
-    ERC721URIStorage,
-    ERC721Burnable,
-    TokenageERC721Permit
-{
+abstract contract TokenageERC721 is DefaultPausable, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, TokenageERC721Permit {
     using ECDSA for bytes32;
 
     event TokenMinted(address owner, string tokenURI, uint256 tokenId);
