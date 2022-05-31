@@ -74,9 +74,9 @@ abstract contract TokenageMysteryBoxRevealableERC721Upgradeable is
         public
         view
         virtual
-        override(ERC721Upgradeable, AccessControlUpgradeable)
+        override(IERC165, ERC721Upgradeable, AccessControlUpgradeable)
         returns (bool)
     {
-        return super.supportsInterface(interfaceId);
+        return interfaceId == type(ITokenageMysteryBoxRevealable).interfaceId || super.supportsInterface(interfaceId);
     }
 }
