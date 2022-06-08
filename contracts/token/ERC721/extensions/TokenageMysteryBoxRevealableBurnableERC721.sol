@@ -58,4 +58,8 @@ abstract contract TokenageMysteryBoxRevealableBurnableERC721 is
     function _setType(uint256 tokenId, uint16 ticketType) internal override {
         super._setType(tokenId, ticketType);
     }
+
+    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, TokenageMysteryBoxBurnableERC721) returns (bool) {
+        return interfaceId == type(ITokenageMysteryBoxRevealable).interfaceId || super.supportsInterface(interfaceId);
+    }
 }

@@ -89,7 +89,7 @@ abstract contract TokenageMysteryBoxBurnableERC721 is DefaultPausable, ERC721, I
         }
     }
 
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, AccessControl) returns (bool) {
-        return super.supportsInterface(interfaceId);
+    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC721, AccessControl) returns (bool) {
+        return interfaceId == type(ITokenageMysteryBoxBurnable).interfaceId || super.supportsInterface(interfaceId);
     }
 }

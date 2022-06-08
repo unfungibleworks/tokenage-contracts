@@ -51,4 +51,8 @@ abstract contract TokenageMysteryBoxERC721Upgradeable is TokenageMysteryBoxBurna
         uint16 boxType,
         uint64 quantity
     ) internal virtual {}
+
+    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, TokenageMysteryBoxBurnableERC721Upgradeable) returns (bool) {
+        return interfaceId == type(ITokenageMysteryBox).interfaceId || super.supportsInterface(interfaceId);
+    }
 }

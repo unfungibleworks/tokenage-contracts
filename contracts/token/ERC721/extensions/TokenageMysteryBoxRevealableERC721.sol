@@ -63,7 +63,7 @@ abstract contract TokenageMysteryBoxRevealableERC721 is DefaultPausable, ERC721,
 
     // The following functions are overrides required by Solidity.
 
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, AccessControl) returns (bool) {
-        return super.supportsInterface(interfaceId);
+    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC721, AccessControl) returns (bool) {
+        return interfaceId == type(ITokenageMysteryBoxRevealable).interfaceId || super.supportsInterface(interfaceId);
     }
 }

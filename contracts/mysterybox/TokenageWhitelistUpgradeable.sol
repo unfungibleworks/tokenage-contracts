@@ -57,4 +57,17 @@ abstract contract TokenageWhitelistUpgradeable is ITokenageWhitelist, DefaultPau
     function isOnWhitelist(address addressToCheck) external view override returns (bool) {
         return _whitelistMapping[addressToCheck] == true;
     }
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(IERC165, AccessControlUpgradeable)
+        returns (bool)
+    {
+        return interfaceId == type(ITokenageWhitelist).interfaceId || super.supportsInterface(interfaceId);
+    }
 }

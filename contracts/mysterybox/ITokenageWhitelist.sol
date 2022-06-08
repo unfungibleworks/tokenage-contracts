@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0 <0.9.0;
 
-interface ITokenageWhitelist {
+import '@openzeppelin/contracts/utils/introspection/ERC165.sol';
+
+interface ITokenageWhitelist is IERC165 {
     event AccountsAdded(uint256 totalAddedAccounts);
     event AccountsRemoved(uint256 totalRemovedAccounts);
 

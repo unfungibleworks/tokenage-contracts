@@ -96,13 +96,7 @@ abstract contract TokenageMysteryBoxBurnableERC721Upgradeable is
         }
     }
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override(ERC721Upgradeable, AccessControlUpgradeable)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
+    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC721Upgradeable, AccessControlUpgradeable) returns (bool) {
+        return interfaceId == type(ITokenageMysteryBoxBurnable).interfaceId || super.supportsInterface(interfaceId);
     }
 }
