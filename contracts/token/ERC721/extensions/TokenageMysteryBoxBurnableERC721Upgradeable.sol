@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 import 'hardhat/console.sol';
-import '@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol';
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 import './ITokenageMysteryBoxBurnable.sol';
@@ -10,7 +10,7 @@ import '../../../DefaultPausableUpgradeable.sol';
 
 abstract contract TokenageMysteryBoxBurnableERC721Upgradeable is
     DefaultPausableUpgradeable,
-    ERC721Upgradeable,
+    ERC721EnumerableUpgradeable,
     ITokenageMysteryBoxBurnable
 {
     using Strings for uint16;
@@ -96,7 +96,7 @@ abstract contract TokenageMysteryBoxBurnableERC721Upgradeable is
         }
     }
 
-    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC721Upgradeable, AccessControlUpgradeable) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC721EnumerableUpgradeable, AccessControlUpgradeable) returns (bool) {
         return interfaceId == type(ITokenageMysteryBoxBurnable).interfaceId || super.supportsInterface(interfaceId);
     }
 }
