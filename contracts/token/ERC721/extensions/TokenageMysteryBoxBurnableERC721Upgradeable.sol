@@ -94,6 +94,7 @@ abstract contract TokenageMysteryBoxBurnableERC721Upgradeable is
         if (to != address(0)) {
             require(tokenIdToUserSeed[tokenId] == 0, 'Transfer forbidden');
         }
+        super._beforeTokenTransfer(from, to, tokenId);
     }
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC721EnumerableUpgradeable, AccessControlUpgradeable) returns (bool) {
